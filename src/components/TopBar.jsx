@@ -1,32 +1,53 @@
 import { AnimatePresence, motion as Motion } from 'framer-motion'
 
-export default function TopBar({ week, cost, alerts }) {
+function Pill({ label, value, color }) {
   return (
-    <header className="glow-card rounded-2xl border border-slate-700/60 bg-slate-900/70 p-4">
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-widest text-cyan-300">Beer Game Control</p>
-          <h1 className="text-2xl font-bold text-slate-100">Week {week}</h1>
-        </div>
-        <div className="rounded-xl border border-slate-700 bg-slate-950/70 px-4 py-2 text-right">
-          <p className="text-xs text-slate-400">Total Cost</p>
-          <p className="text-xl font-semibold text-rose-300">${cost.toFixed(2)}</p>
-        </div>
+    <div className={`${color} flex items-center gap-1.5 rounded-full px-3 py-1 shadow-sm`}>
+      <span className="text-[10px] text-white/70">{label}:</span>
+      <span className="text-xs font-bold text-white">{value}</span>
+    </div>
+  )
+}
+
+export default function TopBar({ week, cost, alerts }) {
+  const day = ((week - 1) % 7) + 1
+
+  return (
+    <header className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-700/60 bg-slate-800/80 px-5 py-3 backdrop-blur-sm">
+      <div className="flex items-center gap-2">
+        <span className="text-xl">🍺</span>
+        <span className="text-base font-black text-white">Beer Game</span>
       </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Pill label="Participant" value="You" color="bg-slate-600" />
+        <Pill label="Step" value={week} color="bg-blue-600" />
+        <Pill label="Day" value={day} color="bg-violet-600" />
+        <Pill label="Cost" value={`$${cost.toFixed(0)}`} color="bg-rose-600" />
+      </div>
+
       <AnimatePresence mode="wait">
-        <Motion.div
-          key={alerts.join('|') || 'stable'}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          className="mt-3 min-h-6 text-sm"
-        >
-          {alerts.length > 0 ? (
-            <p className="font-semibold text-rose-300">⚠ {alerts.join(' • ')}</p>
-          ) : (
-            <p className="text-emerald-300">All systems nominal.</p>
-          )}
-        </Motion.div>
+        {alerts.length > 0 ? (
+          <Motion.div
+            key="alert"
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 10 }}
+            className="rounded-full border border-rose-500/50 bg-rose-500/20 px-3 py-1 text-xs font-semibold text-rose-300"
+          >
+            ⚠ {alerts[0]}
+          </Motion.div>
+        ) : (
+          <Motion.div
+            key="ok"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-300"
+          >
+            ✓ Nominal
+          </Motion.div>
+        )}
       </AnimatePresence>
     </header>
   )
